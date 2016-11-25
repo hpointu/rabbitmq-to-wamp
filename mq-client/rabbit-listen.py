@@ -56,8 +56,8 @@ class MessageHandler(object):
 
 
 @click.command()
-@click.option('-p', '--publish', default=False)
-@click.option('-s', '--store', default=False)
+@click.option('-p', '--publish', default=False, is_flag=True)
+@click.option('-s', '--store', default=False, is_flag=True)
 def main(store, publish):
     #h = MessageHandler(store, publish)
     c = Consumer(RABBIT['host'], RABBIT['port'], _fake_store)
