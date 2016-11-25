@@ -23,9 +23,8 @@ class Consumer(object):
         # We want to keep track of the tasks to be able to
         # terminate properly if needed.
         loop = asyncio.get_event_loop()
-        t = loop.create_task(self.callback(message.body))
-        # t = asyncio.ensure_future(self.callback(message.body))
-        # t.add_done_callback(lambda t: self._tasks.remove(t))
+        t = asyncio.ensure_future(self.callback(message.body))
+        t.add_done_callback(lambda t: self._tasks.remove(t))
         self._tasks.add(t)
 
 
