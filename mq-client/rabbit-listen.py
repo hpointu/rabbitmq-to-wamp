@@ -2,6 +2,16 @@ import asyncio
 import click
 import asynqp
 from settings import WAMP, RABBIT
+from wamp import WampRunner, ApplicationSession
+
+
+class Notifier(ApplicationSession):
+    def _lol(self, message):
+        print("received:", message)
+
+    def onJoin(self, details):
+        print("Joined the wamp realm")
+        self.subscribe(self._lol, 'has.been.stored')
 
 
 class Consumer(object):
@@ -35,12 +45,16 @@ async def _fake_store(message):
 
 class MessageHandler(object):
     def __init__(self, store, publish):
-        self.wamp_session = None
+        self.wamp = None
         self.storage = None
 
         if publish:
             # connect `wamp_sesstion` to the wamp router
-            pass
+            self.wamp = WampRunner(WAMP['router'],
+                                   WAMP['realm'],
+                                   Notifier)
+            asyncio.ensure_future(self.wamp.setup_connection())
+
         if store:
             # connect/init storage (will acutally be a motor client)
             self.storage = _fake_store
@@ -49,8 +63,8 @@ class MessageHandler(object):
         if self.storage:
             await self.storage(message)
 
-        if self.wamp_session:
-            await self.wamp_session.publish('has.been.stored', message)
+        if self.wamp:
+            self.wamp.publish('has.been.stored', {'raw': str(message)})
 
 
 
@@ -58,8 +72,8 @@ class MessageHandler(object):
 @click.option('-p', '--publish', default=False, is_flag=True)
 @click.option('-s', '--store', default=False, is_flag=True)
 def main(store, publish):
-    #h = MessageHandler(store, publish)
-    c = Consumer(RABBIT['host'], RABBIT['port'], _fake_store)
+    h = MessageHandler(store, publish)
+    c = Consumer(RABBIT['host'], RABBIT['port'], h.handle)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(asyncio.ensure_future(c.connect()))
