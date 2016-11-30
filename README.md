@@ -29,6 +29,6 @@ python mq-client/rabbit-listen.py -s
 
 The goal of this project is to have a working prototype for the feature provided by the `-p` flag.
 
-My approach was to write my own version of the ApplicationRunner which is not a runner aymore as it doesn't take car of any event loop. It just assumes it's there.
+My approach was to write my own version of the ApplicationRunner which is not a runner anymore as it doesn't take care of any event loop. It just assumes it's there.
 
-The way I communicate with the ApplicationSession is by keeping a reference to the current session in my "runner".
+The way I communicate with the ApplicationSession is by keeping a reference to the current session in my "runner". It also tries to reconnect to the router when it has lost the connection.
