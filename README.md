@@ -25,8 +25,10 @@ Then the consumer is run like this :
 python mq-client/rabbit-listen.py -s
 ```
 
-# Todo: make the `-p` flag work
+# The `-p` flag
 
-The `-p` flag should publish an update on the WAMP router when the message has been processed.
+The goal of this project is to have a working prototype for the feature provided by the `-p` flag.
 
-This doesn't work right now.
+My approach was to write my own version of the ApplicationRunner which is not a runner aymore as it doesn't take car of any event loop. It just assumes it's there.
+
+The way I communicate with the ApplicationSession is by keeping a reference to the current session in my "runner".
